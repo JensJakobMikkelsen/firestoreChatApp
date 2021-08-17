@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.firestorechatapp.Utils.FirebaseUtils
+import com.google.firebase.firestore.CollectionReference
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
@@ -103,8 +104,7 @@ class ChatFragment : Fragment(), View.OnClickListener {
         recyclerviewChat.adapter = chatAdapter
 
         //load firestore db
-        var messages = FirebaseUtils().fireStoreDatabase.collection("chat").document("users")
-            .collection("user1").document("data").collection("messages")
+        val messages = loadFirestoredb()
 
             //continously listening for changes to db and updating layout herafter
             messages.addSnapshotListener { snapshot, e ->
@@ -130,14 +130,7 @@ class ChatFragment : Fragment(), View.OnClickListener {
                                 )
                             )
                         }
-
-                        if (activity != null) {
-                            chatAdapter = ChatAdapter(messageList.reversed(), requireActivity())
-                            recyclerviewChat.adapter = chatAdapter
-                            chatInput.text.clear()
-                            recyclerviewChat.adapter?.notifyDataSetChanged()
-                            recyclerviewChat.scrollToPosition(0)
-                        }
+                        updateUI()
 
                     }
 
@@ -167,50 +160,62 @@ class ChatFragment : Fragment(), View.OnClickListener {
                         )
                     }
 
-                    if (activity != null) {
-                        chatAdapter = ChatAdapter(messageList.reversed(), requireActivity())
-                        recyclerviewChat.adapter = chatAdapter
-                        chatInput.text.clear()
-                        recyclerviewChat.adapter?.notifyDataSetChanged()
-                        recyclerviewChat.scrollToPosition(0)
-                    }
-
+                    updateUI()
                 }
             }
+    }
+
+    fun addToFirebase(msg: Message)
+    {
+        FirebaseUtils().fireStoreDatabase.collection("chat").document("users").collection("user1").document("data")
+            .collection("messages").document(msg.time).set(msg)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun getCurrentTime(): String {
+        val currentTime = DateTimeFormatter
+            .ofPattern("yyyy-MM-dd HH:mm.ss")
+            .withZone(ZoneOffset.UTC)
+            .format(Instant.now())
+        return currentTime
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onClick(p0: View?) {
         if (chatInput.text.isNotEmpty()){
 
-            val currentTime = DateTimeFormatter
-                .ofPattern("yyyy-MM-dd HH:mm.ss")
-                .withZone(ZoneOffset.UTC)
-                .format(Instant.now())
-
-            communicate(Message(chatInput.text.toString(), currentTime, Constants.MESSAGE_TYPE_SENT,
-                name.toString()
-            ))
+            val msg = Message(chatInput.text.toString(), getCurrentTime(), Constants.MESSAGE_TYPE_SENT,
+            name.toString())
+            messageList.add(msg)
+            updateUI()
+            addToFirebase(msg)
         }
 }
 
+    //should not be necessary - look into removing
     fun setCommunicationListener(communicationListener: MainActivity){
         this.communicationListener = communicationListener
     }
 
+    //should not be necessary - look into removing
     interface CommunicationListener{
         fun onCommunication(message: String)
     }
 
-    fun communicate(message: Message){
-        messageList.add(message)
-        if(activity != null) {
+    fun updateUI(){
+        if (activity != null) {
             chatAdapter = ChatAdapter(messageList.reversed(), requireActivity())
             recyclerviewChat.adapter = chatAdapter
-            recyclerviewChat.scrollToPosition(0)
             chatInput.text.clear()
+            recyclerviewChat.adapter?.notifyDataSetChanged()
+            recyclerviewChat.scrollToPosition(0)
         }
-        FirebaseUtils().fireStoreDatabase.collection("chat").document("users").collection("user1").document("data")
-            .collection("messages").document(message.time).set(message)
     }
+
+    fun loadFirestoredb(): CollectionReference {
+        return FirebaseUtils().fireStoreDatabase.collection("chat").document("users")
+            .collection("user1").document("data").collection("messages")
+    }
+
+
 }
