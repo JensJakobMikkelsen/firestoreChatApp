@@ -41,6 +41,18 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:28.0.1')
     implementation 'com.google.firebase:firebase-firestore-ktx'
     implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.1.1'
+
+
+    //https://firebase.google.com/docs/auth/android/custom-auth
+    // Import the BoM for the Firebase platform
+    implementation platform('com.google.firebase:firebase-bom:28.3.1')
+    implementation 'com.google.firebase:firebase-auth-ktx:21.0.1'
+
+    // Declare the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    //implementation 'com.google.firebase:firebase-auth-ktx'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

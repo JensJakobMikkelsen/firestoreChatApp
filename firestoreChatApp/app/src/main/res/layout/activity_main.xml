@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:hint="Username:" />
+            android:hint="@string/edit_username" />
     </LinearLayout>
 
     <LinearLayout
@@ -48,7 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:hint="Password:" />
+            android:hint="@string/password" />
     </LinearLayout>
 
     <LinearLayout
@@ -65,7 +65,24 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="5"
-            android:hint="Login:" />
+            android:hint="@string/login" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@id/ll3"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <Button
+            android:id="@+id/button_register"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:hint="@string/register_new_user" />
     </LinearLayout>
 
 </RelativeLayout>

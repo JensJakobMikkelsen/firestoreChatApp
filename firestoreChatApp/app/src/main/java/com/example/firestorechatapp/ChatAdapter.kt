@@ -8,38 +8,31 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.util.*
 
-class ChatAdapter(val chatData: List<Message>, val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ChatAdapter(private val chatData: List<Message>, private val context: Context) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    val SENT = 0
-    val RECEIVED = 1
-    var df: SimpleDateFormat = SimpleDateFormat("hh:mm a",Locale.getDefault())
+    private val SENT = 0
+    private val RECEIVED = 1
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
-        when(holder?.itemViewType){
+        when(holder.itemViewType){
 
             SENT -> {
-                val holder: SentHolder = holder as SentHolder
-                holder.sentTV.text = chatData[position].message
+                val tempHolder: SentHolder = holder as SentHolder
+                tempHolder.sentTV.text = chatData[position].message
 
                 val sentByString = "Sent by " + chatData[position].name + " at " + chatData[position].time
-                holder.timeStamp.text = sentByString
+                tempHolder.timeStamp.text = sentByString
 
             }
             RECEIVED -> {
-                val holder: ReceivedHolder = holder as ReceivedHolder
+                val tempHolder: ReceivedHolder = holder as ReceivedHolder
                 holder.receivedTV.text = chatData[position].message
 
                 val sentByString = "Sent by " + chatData[position].name + " at " + chatData[position].time
-                holder.timeStamp.text = sentByString
+                tempHolder.timeStamp.text = sentByString
             }
 
         }
@@ -51,7 +44,6 @@ class ChatAdapter(val chatData: List<Message>, val context: Context) : RecyclerV
             Constants.MESSAGE_TYPE_SENT -> return SENT
             Constants.MESSAGE_TYPE_RECEIVED -> return RECEIVED
         }
-
         return -1
     }
 
@@ -61,30 +53,30 @@ class ChatAdapter(val chatData: List<Message>, val context: Context) : RecyclerV
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
 
-        when(viewType){
+        return when(viewType){
             SENT -> {
                 val view = LayoutInflater.from(context).inflate(R.layout.sent_layout,parent,false)
-                return SentHolder(view)
+                SentHolder(view)
             }
             RECEIVED -> {
                 val view = LayoutInflater.from(context).inflate(R.layout.received_layout,parent,false)
-                return ReceivedHolder(view)
+                ReceivedHolder(view)
             }
             else -> {
                 val view = LayoutInflater.from(context).inflate(R.layout.sent_layout,parent,false)
-                return SentHolder(view)
+                SentHolder(view)
             }
         }
     }
 
     inner class SentHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
-        var sentTV = itemView.findViewById<TextView>(R.id.sentMessage)
-        var timeStamp = itemView.findViewById<TextView>(R.id.timeStamp)
+        var sentTV: TextView = itemView.findViewById(R.id.sentMessage)
+        var timeStamp: TextView = itemView.findViewById(R.id.timeStamp)
     }
 
     inner class ReceivedHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var receivedTV = itemView.findViewById<TextView>(R.id.receivedMessage)
-        var timeStamp = itemView.findViewById<TextView>(R.id.timeStamp)
+        var receivedTV: TextView = itemView.findViewById(R.id.receivedMessage)
+        var timeStamp: TextView = itemView.findViewById(R.id.timeStamp)
     }
 
 }

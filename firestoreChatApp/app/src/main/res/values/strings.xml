@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">BlueChat</string>
+    <string name="app_name">FireBaseChat</string>
     <string name="nothing"> </string>
     <string name="search_devices">Search Devices</string>
     <string name="not_compatible">Not compatible</string>
@@ -22,4 +22,8 @@
     <string name="test_stamp">15 Jun, 2017, 4:25 A.M.</string>
     <string name="done">Done</string>
     <string name="typeMessage">Type Message</string>
+    <string name="register_new_user">Register new user:</string>
+    <string name="login">Login:</string>
+    <string name="password">Password:</string>
+    <string name="edit_username">Username:</string>
 </resources>

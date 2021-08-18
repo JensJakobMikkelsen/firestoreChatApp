@@ -27,7 +27,6 @@ class ChatFragment : Fragment(), View.OnClickListener {
 
     private lateinit var chatInput: EditText
     private lateinit var sendButton: FrameLayout
-    //private var communicationListener: CommunicationListener? = null
     private var chatAdapter: ChatAdapter? = null
     private lateinit var recyclerviewChat: RecyclerView
     private var messageList = arrayListOf<Message>()
@@ -53,20 +52,18 @@ class ChatFragment : Fragment(), View.OnClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         val mView: View  = LayoutInflater.from(activity).inflate(R.layout.chat_fragment, container, false)
-        val bundle = arguments
         password = arguments?.getString("password")
         name= arguments?.getString("name")
-        initViews(mView, bundle)
+        initViews(mView)
 
         return mView
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("NotifyDataSetChanged")
-    private fun initViews(mView: View, bundle: Bundle?) {
+    private fun initViews(mView: View) {
 
         chatInput = mView.findViewById(R.id.chatInput)
         val chatIcon: ImageView = mView.findViewById(R.id.sendIcon)
@@ -104,47 +101,37 @@ class ChatFragment : Fragment(), View.OnClickListener {
 
         //load firestore db
         val messages = getFirestoredb(firebaseUtils)
+        //val messages = getFirestoredb(firebaseUtils)
 
-            //continously listening for changes to db and updating layout hereafter
+        //continously listening for changes to db and updating layout herafter
         messages.addSnapshotListener { snapshot, e ->
             if (e != null) {
                 FSOnSucessListener(messages)
                 return@addSnapshotListener
             }
+            FSOnSucessListener(messages)
         }
-        //Load messages once on upstart
-        FSOnSucessListener(messages)
     }
 
-    fun getCurrentTime(): String {
-        val currentTime = DateTimeFormatter
+    private fun getCurrentTime(): String {
+        return DateTimeFormatter
             .ofPattern("yyyy-MM-dd HH:mm.ss")
             .withZone(ZoneOffset.UTC)
             .format(Instant.now())
-        return currentTime
     }
 
     override fun onClick(p0: View?) {
         if (chatInput.text.isNotEmpty()){
 
             val msg = Message(chatInput.text.toString(), getCurrentTime(), Constants.MESSAGE_TYPE_SENT,
-            name.toString())
+                name.toString())
             messageList.add(msg)
             updateUI()
             addMessageToFirebase(firebaseUtils, msg)
         }
-}
-    /*
-    TODO: should not be necessary - look into removing
-    fun setCommunicationListener(communicationListener: MainActivity){
-        this.communicationListener = communicationListener
     }
-    interface CommunicationListener{
-        fun onCommunication(message: String)
-    }
-     */
 
-    fun updateUI(){
+    private fun updateUI(){
         if (activity != null) {
             chatAdapter = ChatAdapter(messageList.reversed(), requireActivity())
             recyclerviewChat.adapter = chatAdapter
@@ -154,13 +141,13 @@ class ChatFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    fun getFirestoredb(_firebaseUtils: FirebaseUtils): CollectionReference {
+    private fun getFirestoredb(_firebaseUtils: FirebaseUtils): CollectionReference {
 
         //TODO: Kotlin coroutine?
         return _firebaseUtils.firestorePath
     }
 
-    fun addMessageToFirebase(_firebaseUtils: FirebaseUtils, msg: Message)
+    private fun addMessageToFirebase(_firebaseUtils: FirebaseUtils, msg: Message)
     {
         //TODO: Kotlin coroutine?
         _firebaseUtils.firestorePath.document(msg.time).set(msg)
@@ -169,24 +156,25 @@ class ChatFragment : Fragment(), View.OnClickListener {
     //TODO: breaking single responsibility principle
     fun FSOnSucessListener(messages: CollectionReference)
     {
+        //TODO: better if we could just fetch new changes instead of everything for each event
+        messageList.clear()
         //TODO: Kotlin coroutine?
         messages.get().addOnSuccessListener { result ->
 
             for (document in result) {
                 Log.d(TAG, "${document.id} => ${document.data}")
-                val _name = document.data.get("name").toString()
-                var _type = 2
-                if (name == _name) {
-                    _type = Constants.MESSAGE_TYPE_SENT
+                var tempType: Int
+                if (name == document.data.get("name").toString()) {
+                    tempType = Constants.MESSAGE_TYPE_SENT
                 } else {
-                    _type = Constants.MESSAGE_TYPE_RECEIVED
+                    tempType = Constants.MESSAGE_TYPE_RECEIVED
                 }
                 messageList.add(
                     Message(
-                        document.data.get("message").toString(),
-                        document.data.get("time").toString(),
-                        _type,
-                        document.data.get("name").toString()
+                        document.data["message"].toString(),
+                        document.data["time"].toString(),
+                        tempType,
+                        document.data["name"].toString()
                     )
                 )
             }

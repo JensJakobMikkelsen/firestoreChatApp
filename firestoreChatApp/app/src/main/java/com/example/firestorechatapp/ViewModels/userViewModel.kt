@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.firestorechatapp.Message
 
-
 // not used
 // https://developer.android.com/guide/fragments/communicate
 class userViewModel : ViewModel() {
